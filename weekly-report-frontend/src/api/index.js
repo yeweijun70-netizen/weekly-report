@@ -2,11 +2,22 @@ import axios from 'axios'
 import { ElMessage } from 'element-plus'
 import router from '@/router'
 
+function normalizeApiBase(raw) {
+    const v = (raw || '').toString().trim()
+    if (!v) return '/api'
+    // 允许相对路径（本地开发 / 反向代理）
+    if (v.startsWith('/')) return v
+    // 若未带协议，默认补 https://，避免被当成站内相对路径
+    const withProtocol = /^https?:\/\//i.test(v) ? v : `https://${v}`
+    // 建议统一以 /api 结尾（后端 context-path=/api）
+    return withProtocol.endsWith('/api') ? withProtocol : withProtocol.replace(/\/+$/, '') + '/api'
+}
+
 // 线上部署时建议通过 Vercel 环境变量 VITE_API_BASE 配置后端地址
 // - 本地开发默认仍走 Vite 代理：/api -> http://localhost:8080/api
-// - 线上示例：VITE_API_BASE=https://your-backend-domain/api
+// - 线上示例：VITE_API_BASE=weekly-report-production-df37.up.railway.app 或 https://weekly-report-production-df37.up.railway.app/api
 const request = axios.create({
-    baseURL: import.meta.env?.VITE_API_BASE || '/api',
+    baseURL: normalizeApiBase(import.meta.env?.VITE_API_BASE),
     timeout: 10000
 })
 
