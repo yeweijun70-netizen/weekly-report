@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>迷你登录系统</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: sans-serif; max-width: 400px; margin: 60px auto; padding: 20px; }
+    h1 { font-size: 1.25rem; margin-bottom: 20px; }
+    input { width: 100%; padding: 10px; margin-bottom: 12px; border: 1px solid #ccc; border-radius: 4px; }
+    button { width: 100%; padding: 10px; background: #1989fa; color: #fff; border: none; border-radius: 4px; cursor: pointer; }
+    button:hover { background: #0d7de0; }
+    .welcome { display: none; padding: 20px; background: #f5f5f5; border-radius: 8px; margin-top: 20px; }
+    .welcome.show { display: block; }
+    .error { color: #e74c3c; font-size: 14px; margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <div id="loginBox">
+    <h1>登录</h1>
+    <form id="loginForm">
+      <input type="text" id="username" placeholder="用户名" value="admin" required />
+      <input type="password" id="password" placeholder="密码" value="123456" required />
+      <button type="submit">登录</button>
+    </form>
+    <p id="errorMsg" class="error"></p>
+  </div>
+
+  <div id="welcomeBox" class="welcome">
+    <h1>欢迎</h1>
+    <p>你已成功登录。这是登录后看到的唯一一段文本。</p>
+    <p><button type="button" id="logoutBtn">退出</button></p>
+  </div>
+
+  <script>
+    const loginBox = document.getElementById('loginBox');
+    const welcomeBox = document.getElementById('welcomeBox');
+    const loginForm = document.getElementById('loginForm');
+    const errorMsg = document.getElementById('errorMsg');
+    const logoutBtn = document.getElementById('logoutBtn');
+
+    // 页面加载时：若本地存了登录态则直接显示欢迎页
+    if (localStorage.getItem('loggedIn') === 'yes') {
+      loginBox.style.display = 'none';
+      welcomeBox.classList.add('show');
+    }
+
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      errorMsg.textContent = '';
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value;
+
+      try {
+        const res = await fetch('/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          localStorage.setItem('loggedIn', 'yes');
+          localStorage.setItem('username', data.username || username);
+          loginBox.style.display = 'none';
+          welcomeBox.classList.add('show');
+        } else {
+          errorMsg.textContent = data.message || '登录失败';
+        }
+      } catch (err) {
+        errorMsg.textContent = '网络错误，请检查后端是否启动';
+      }
+    });
+
+    logoutBtn.addEventListener('click', () => {
+      localStorage.removeItem('loggedIn');
+      localStorage.removeItem('username');
+      welcomeBox.classList.remove('show');
+      loginBox.style.display = 'block';
+    });
+  </script>
+</body>
+</html>

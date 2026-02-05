@@ -1,0 +1,95 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+
+# 默认使用内存缓存，避免无 Redis 时系统管理等接口 500；需 Redis 时改为 true
+app:
+  cache:
+    redis: false
+
+spring:
+  application:
+    name: weekly-report
+  
+  # 解决 Knife4j/Springfox 与 Spring Boot 2.6+ 兼容性问题
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+  
+  # 数据库配置
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/weekly_report?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
+    username: root
+    password: ywj26626
+  
+  # Redis 配置（当 app.cache.redis: false 时可不配或注释，避免连接失败）
+  redis:
+    host: 10.8.5.43
+    port: 8255
+    password: srPGgblRfgo=
+    database: 15
+    timeout: 5000ms
+    lettuce:
+      pool:
+        max-active: 8
+        max-wait: -1ms
+        max-idle: 8
+        min-idle: 0
+
+# MyBatis-Plus配置
+mybatis-plus:
+  mapper-locations: classpath*:/mapper/**/*.xml
+  type-aliases-package: com.company.weeklyreport.entity
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      id-type: auto
+      logic-delete-field: deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+
+# JWT配置
+jwt:
+  secret: WeeklyReportSecretKey2024!@#$%
+  expiration: 86400000  # 24小时
+
+# Knife4j配置
+knife4j:
+  enable: true
+  setting:
+    language: zh-CN
+
+# DeepSeek AI 助手（API Key 建议用环境变量 AI_API_KEY 覆盖，勿提交到仓库）
+ai:
+  enabled: true
+  api-url: https://api.deepseek.com/v1/chat/completions
+  api-key: sk-c155135802e0475894d80b305baeac26
+  model: deepseek-chat
+  max-tokens: 2048
+  timeout-ms: 30000
+  system-prompt: |
+    你是本企业周报系统的智能助手，具备对话能力，而不是简单的关键词搜索。
+    你的能力包括：根据「当前上下文」中的用户、周次等信息给出个性化建议；理解多轮对话中的指代与追问；在涉及操作时说明具体步骤（如写周报、查看团队周报、统计分析等）。
+    若上方提供了【当前上下文】，请据此回答（例如提醒当前用户第几周、建议去哪个页面操作）；若未提供，则按通用方式回答。
+    约束：不要编造系统没有的功能；不确定的数据可建议用户到对应页面查看；回答可适当展开、自然对话，不必刻意极简。
+  # type=report 时使用：将用户简略输入填入下方固定模板结构，丰富总结后按三块输出 JSON
+  system-prompt-report: |
+    你是企业周报撰写助手。用户会提供简略的「本周工作」「下周计划」「需协调/需支持」要点，你需要把这些要点填入下方固定模板中，进行丰富、总结后输出。
+    硬性规则：1）必须严格使用下方模板结构，不得删改模板的小标题与表格列名；2）用户提到的事项必须全部体现到对应类别/段落中，可润色扩展但不得替换成用户没提的内容；3）用户未填的栏位，对应段落可写「无」或「暂无」；4）输出必须为 JSON，且仅包含三个键：thisWeekWork、nextWeekPlan、coordination。不要用 ```json 包裹，直接输出 JSON。三个键的含义与格式如下：
+    - thisWeekWork：字符串，内容为「一、本周工作完成情况」整段 + 「二、问题、风险与思考」整段（不含「需支持事项」），使用 HTML 表格与段落。表格必须包含列：类别、任务/内容、关联需求/单号、状态、关键成果/备注；类别行包括：功能开发、缺陷修复、技术优化、协作/支持、文档/事务。根据用户输入将事项归入对应类别并填表，无则该行可写「无」或保留表头。二、问题、风险与思考 下分：遇到的问题（技术层面/协作层面）、复盘与改进。
+    - coordination：字符串，内容为「需支持事项」段落，根据用户「需协调/需支持」输入丰富输出；无则写「无」。
+    - nextWeekPlan：字符串，内容为「三、下周核心计划」，下分：P0（必须完成）、P1（计划完成）、学习/技术规划。根据用户下周计划要点填入并丰富。
+    模板结构参考（输出时按此结构用 HTML 或清晰段落）：
+    一、本周工作完成情况：表格列【类别|任务/内容|关联需求/单号|状态|关键成果/备注】，类别行：功能开发、缺陷修复、技术优化、协作/支持、文档/事务。状态可用✅已完成、🔄进行中等。
+    二、问题、风险与思考：遇到的问题（技术层面、协作/流程层面）、复盘与改进、需支持事项（此项输出到 coordination 键）。
+    三、下周核心计划：P0（必须完成）、P1（计划完成）、学习/技术规划。
+
+# 日志配置
+logging:
+  level:
+    com.company.weeklyreport: debug
+

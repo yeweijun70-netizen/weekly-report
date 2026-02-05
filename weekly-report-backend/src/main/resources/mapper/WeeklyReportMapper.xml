@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.company.weeklyreport.mapper.WeeklyReportMapper">
+
+    <!-- 鍥㈤槦鍛ㄦ姤鏌ヨ - 鏀寔澶氭潯浠剁瓫閫夛紙鍖呭惈瀛愰儴闂級 -->
+    <select id="selectTeamReports" resultType="com.company.weeklyreport.entity.WeeklyReport">
+        SELECT w.*, u.username, d.name as department_name
+        FROM weekly_report w
+        LEFT JOIN sys_user u ON w.user_id = u.id
+        LEFT JOIN sys_department d ON u.department_id = d.id
+        <where>
+            w.deleted = 0
+            <if test="year != null">
+                AND w.year = #{year}
+            </if>
+            <if test="weekNumber != null">
+                AND w.week_number = #{weekNumber}
+            </if>
+            <if test="departmentIds != null and departmentIds.size() > 0">
+                AND u.department_id IN
+                <foreach collection="departmentIds" item="deptId" open="(" separator="," close=")">
+                    #{deptId}
+                </foreach>
+            </if>
+            <if test="startDate != null and startDate != ''">
+                AND DATE(w.submit_time) &gt;= #{startDate}
+            </if>
+            <if test="endDate != null and endDate != ''">
+                AND DATE(w.submit_time) &lt;= #{endDate}
+            </if>
+            <if test="status != null">
+                AND w.status = #{status}
+            </if>
+            <if test="keyword != null and keyword != ''">
+                AND (u.username LIKE CONCAT('%', #{keyword}, '%') 
+                     OR u.email LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+        </where>
+        ORDER BY w.submit_time DESC, w.create_time DESC
+    </select>
+
+</mapper>
+

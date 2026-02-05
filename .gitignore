@@ -1,0 +1,20 @@
+## OS / Editor
+.DS_Store
+Thumbs.db
+.vscode/
+
+## Logs
+*.log
+
+## Frontend (Vite/Vue)
+weekly-report-frontend/node_modules/
+weekly-report-frontend/dist/
+weekly-report-frontend/.vite/
+
+## Backend (Spring Boot / Maven)
+weekly-report-backend/target/
+
+## Misc
+*.iml
+.idea/
+

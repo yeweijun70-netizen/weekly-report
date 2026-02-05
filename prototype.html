@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>浼佷笟鍛ㄦ姤绠＄悊绯荤粺</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #0d6efd;
+            --sidebar-width: 260px;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: #f4f6f9;
+        }
+
+        .login-page {
+            min-height: 100vh;
+            display: flex;
+        }
+
+        .login-left {
+            flex: 1;
+            background: linear-gradient(135deg, #0d6efd, #0056b3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .login-left h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        .login-right {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+        }
+
+        .login-card {
+            width: 100%;
+            max-width: 400px;
+            padding: 2rem;
+        }
+
+        .sidebar {
+            width: var(--sidebar-width);
+            background: linear-gradient(180deg, #1e3a5f, #0d2137);
+            min-height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            color: white;
+        }
+
+        .sidebar-brand {
+            padding: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .sidebar-nav {
+            padding: 1rem 0;
+        }
+
+        .nav-item {
+            margin: 0.25rem 0.75rem;
+        }
+
+        .nav-link {
+            color: rgba(255, 255, 255, 0.7);
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            transition: all 0.2s;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .nav-link i {
+            font-size: 1.1rem;
+        }
+
+        .main-wrapper {
+            margin-left: var(--sidebar-width);
+        }
+
+        .top-header {
+            background: white;
+            padding: 1rem 1.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .content-area {
+            padding: 1.5rem;
+        }
+
+        .card {
+            border: none;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            border-radius: 12px;
+        }
+
+        .card-header {
+            background: white;
+            border-bottom: 1px solid #eee;
+            font-weight: 600;
+            padding: 1rem 1.25rem;
+        }
+
+        .stat-card {
+            text-align: center;
+            padding: 1.5rem;
+        }
+
+        .stat-card .icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-size: 1.5rem;
+        }
+
+        .stat-card .number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .stat-card .label {
+            color: #6c757d;
+            font-size: 0.875rem;
+        }
+
+        .tree-view .tree-item {
+            padding: 0.5rem 0.75rem;
+            cursor: pointer;
+            border-radius: 6px;
+            margin: 2px 0;
+        }
+
+        .tree-view .tree-item:hover {
+            background: #e9ecef;
+        }
+
+        .tree-view .tree-item.active {
+            background: #0d6efd;
+            color: white;
+        }
+
+        .tree-view .tree-child {
+            padding-left: 1.5rem;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .status-submitted {
+            background: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #664d03;
+        }
+
+        .rating-stars i {
+            color: #ffc107;
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        .module-content {
+            display: none;
+        }
+
+        .module-content.active {
+            display: block;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
+        }
+
+        /* Custom Tab Styles */
+        .nav-tabs {
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .nav-tabs .nav-link {
+            color: #495057;
+            font-weight: 500;
+            border: none;
+            border-bottom: 3px solid transparent;
+            background: transparent;
+            padding: 0.75rem 1.25rem;
+            margin-bottom: -2px;
+            transition: all 0.2s ease;
+        }
+
+        .nav-tabs .nav-link:hover {
+            color: var(--primary);
+            border-bottom-color: rgba(13, 110, 253, 0.3);
+            background: rgba(13, 110, 253, 0.05);
+        }
+
+        .nav-tabs .nav-link.active {
+            color: var(--primary);
+            font-weight: 600;
+            border-bottom: 3px solid var(--primary);
+            background: transparent;
+        }
+
+        .nav-tabs .nav-link i {
+            opacity: 0.7;
+        }
+
+        .nav-tabs .nav-link.active i {
+            opacity: 1;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Login Page -->
+    <div id="loginPage" class="login-page page active">
+        <div class="login-left">
+            <div class="text-center">
+                <i class="bi bi-journal-text" style="font-size: 4rem;"></i>
+                <h1 class="mt-3">浼佷笟鍛ㄦ姤绠＄悊绯荤粺</h1>
+                <p class="lead opacity-75">楂樻晥鍗忎綔锛岀簿鍑嗙�＄悊</p>
+            </div>
+        </div>
+        <div class="login-right">
+            <div class="login-card">
+                <h3 class="mb-4">鐢ㄦ埛鐧诲綍</h3>
+                <form id="loginForm">
+                    <div class="mb-3">
+                        <label class="form-label">閭�绠卞湴鍧€</label>
+                        <input type="email" class="form-control" value="admin@company.com">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">瀵嗙爜</label>
+                        <input type="password" class="form-control" value="123456">
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" checked>
+                        <label class="form-check-label">璁颁綇鎴�</label>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 py-2">鐧� 褰�</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Layout -->
+    <div id="mainLayout" class="page">
+        <aside class="sidebar">
+            <div class="sidebar-brand"><i class="bi bi-journal-text me-2"></i>鍛ㄦ姤绯荤粺</div>
+            <nav class="sidebar-nav">
+                <div class="nav-item"><a class="nav-link active" href="#" data-page="dashboard"><i
+                            class="bi bi-grid"></i>宸ヤ綔鍙�</a></div>
+                <div class="nav-item"><a class="nav-link" href="#" data-page="write"><i
+                            class="bi bi-pencil-square"></i>鍐欏懆鎶�</a></div>
+                <div class="nav-item"><a class="nav-link" href="#" data-page="team"><i class="bi bi-people"></i>鍥㈤槦鍛ㄦ姤</a>
+                </div>
+                <div class="nav-item"><a class="nav-link" href="#" data-page="analytics"><i
+                            class="bi bi-graph-up"></i>缁熻�″垎鏋�</a></div>
+                <div class="nav-item"><a class="nav-link" href="#" data-page="system"><i class="bi bi-gear"></i>绯荤粺绠＄悊</a>
+                </div>
+            </nav>
+        </aside>
+        <div class="main-wrapper">
+            <header class="top-header">
+                <div><strong id="pageTitle">宸ヤ綔鍙�</strong></div>
+                <div class="d-flex align-items-center gap-3">
+                    <span class="badge bg-primary">绗�3鍛�</span>
+                    <span><i class="bi bi-bell"></i></span>
+                    <span><i class="bi bi-person-circle"></i> 绠＄悊鍛�</span>
+                    <a href="#" id="logoutBtn" class="text-decoration-none text-muted"><i
+                            class="bi bi-box-arrow-right"></i></a>
+                </div>
+            </header>
+            <main class="content-area">
+                <!-- Dashboard -->
+                <div id="dashboardContent" class="module-content active">
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-3">
+                            <div class="card stat-card">
+                                <div class="icon bg-primary bg-opacity-10 text-primary"><i
+                                        class="bi bi-check-circle"></i></div>
+                                <div class="number">12</div>
+                                <div class="label">宸叉彁浜ゅ懆鎶�</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card stat-card">
+                                <div class="icon bg-warning bg-opacity-10 text-warning"><i class="bi bi-clock"></i>
+                                </div>
+                                <div class="number">3</div>
+                                <div class="label">寰呮彁浜�</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card stat-card">
+                                <div class="icon bg-success bg-opacity-10 text-success"><i class="bi bi-star"></i></div>
+                                <div class="number">4.5</div>
+                                <div class="label">骞冲潎璇勫垎</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card stat-card">
+                                <div class="icon bg-info bg-opacity-10 text-info"><i class="bi bi-calendar-week"></i>
+                                </div>
+                                <div class="number">绗�3鍛�</div>
+                                <div class="label">褰撳墠鍛ㄦ��</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row g-4">
+                        <div class="col-md-8">
+                            <div class="card">
+                                <div class="card-header">鎴戠殑鍘嗗彶鍛ㄦ姤</div>
+                                <div class="card-body">
+                                    <table class="table table-hover mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th>鍛ㄦ��</th>
+                                                <th>鎻愪氦鏃堕棿</th>
+                                                <th>鐘舵€�</th>
+                                                <th>璇勫垎</th>
+                                                <th>鎿嶄綔</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>绗�2鍛�</td>
+                                                <td>2024-01-12 17:30</td>
+                                                <td><span class="status-badge status-submitted">宸叉彁浜�</span></td>
+                                                <td><i class="bi bi-star-fill text-warning"></i> 4.5</td>
+                                                <td><a href="#">鏌ョ湅</a></td>
+                                            </tr>
+                                            <tr>
+                                                <td>绗�1鍛�</td>
+                                                <td>2024-01-05 16:45</td>
+                                                <td><span class="status-badge status-submitted">宸叉彁浜�</span></td>
+                                                <td><i class="bi bi-star-fill text-warning"></i> 5.0</td>
+                                                <td><a href="#">鏌ョ湅</a></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header">寰呭姙浜嬮」</div>
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center p-2 bg-warning bg-opacity-10 rounded mb-2"><i
+                                            class="bi bi-exclamation-circle text-warning me-2"></i><small>鏈�鍛ㄥ懆鎶ュ皻鏈�鎻愪氦</small>
+                                    </div>
+                                    <div class="d-flex align-items-center p-2 bg-info bg-opacity-10 rounded"><i
+                                            class="bi bi-chat-dots text-info me-2"></i><small>鏀跺埌1鏉℃柊璇勮��</small></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Write Report -->
+                <div id="writeContent" class="module-content">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <span><i class="bi bi-pencil me-2"></i>濉�鍐欏懆鎶� - 绗�3鍛� (2024.01.15 - 2024.01.19)</span>
+                            <button class="btn btn-outline-primary btn-sm" id="importBtn"><i
+                                    class="bi bi-download me-1"></i>瀵煎叆涓婂懆璁″垝</button>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-4"><label class="form-label fw-bold">鏈�鍛ㄥ伐浣滃畬鎴愭儏鍐�</label><textarea
+                                    id="thisWeekWork" class="form-control" rows="5"
+                                    placeholder="璇疯�︾粏鎻忚堪鏈�鍛ㄥ畬鎴愮殑宸ヤ綔鍐呭��..."></textarea></div>
+                            <div class="mb-4"><label class="form-label fw-bold">涓嬪懆宸ヤ綔璁″垝</label><textarea
+                                    id="nextWeekPlan" class="form-control" rows="5"
+                                    placeholder="璇峰垪鍑轰笅鍛ㄧ殑宸ヤ綔璁″垝..."></textarea></div>
+                            <div class="mb-4"><label class="form-label fw-bold">闇€鍗忚皟浜嬮」</label><textarea
+                                    class="form-control" rows="3" placeholder="濡傛湁闇€瑕佸崗璋冩垨鏀�鎸佺殑浜嬮」璇峰湪姝よ�存槑..."></textarea></div>
+                            <div class="d-flex gap-2"><button class="btn btn-outline-secondary"><i
+                                        class="bi bi-save me-1"></i>鏆傚瓨</button><button class="btn btn-primary"><i
+                                        class="bi bi-send me-1"></i>鎻愪氦</button></div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Team Reports -->
+                <div id="teamContent" class="module-content">
+                    <div class="row g-4">
+                        <div class="col-md-3">
+                            <div class="card">
+                                <div class="card-header">缁勭粐鏋舵瀯</div>
+                                <div class="card-body tree-view">
+                                    <div class="tree-item"><i class="bi bi-building me-2"></i>XX绉戞妧鍏�鍙�</div>
+                                    <div class="tree-child">
+                                        <div class="tree-item active"><i class="bi bi-diagram-3 me-2"></i>鐮斿彂閮�</div>
+                                        <div class="tree-child">
+                                            <div class="tree-item"><i class="bi bi-people me-2"></i>鍚庣��缁�</div>
+                                            <div class="tree-item"><i class="bi bi-people me-2"></i>鍓嶇��缁�</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-9">
+                            <div class="card">
+                                <div class="card-header">鐮斿彂閮� - 鍥㈤槦鍛ㄦ姤 (绗�3鍛�)</div>
+                                <div class="card-body">
+                                    <table class="table table-hover mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th>濮撳悕</th>
+                                                <th>閮ㄩ棬</th>
+                                                <th>鐘舵€�</th>
+                                                <th>鎻愪氦鏃堕棿</th>
+                                                <th>璇勫垎</th>
+                                                <th>鎿嶄綔</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>寮犱笁</td>
+                                                <td>鍚庣��缁�</td>
+                                                <td><span class="status-badge status-submitted">宸叉彁浜�</span></td>
+                                                <td>01-15 17:30</td>
+                                                <td><span class="rating-stars"><i class="bi bi-star-fill"></i><i
+                                                            class="bi bi-star-fill"></i><i
+                                                            class="bi bi-star-fill"></i><i
+                                                            class="bi bi-star-fill"></i><i
+                                                            class="bi bi-star"></i></span></td>
+                                                <td><button class="btn btn-sm btn-outline-primary"
+                                                        data-bs-toggle="modal" data-bs-target="#reportModal">鏌ョ湅</button>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>鏉庡洓</td>
+                                                <td>鍚庣��缁�</td>
+                                                <td><span class="status-badge status-submitted">宸叉彁浜�</span></td>
+                                                <td>01-15 16:20</td>
+                                                <td><span class="rating-stars"><i class="bi bi-star-fill"></i><i
+                                                            class="bi bi-star-fill"></i><i
+                                                            class="bi bi-star-fill"></i><i
+                                                            class="bi bi-star-fill"></i><i
+                                                            class="bi bi-star-fill"></i></span></td>
+                                                <td><button class="btn btn-sm btn-outline-primary"
+                                                        data-bs-toggle="modal" data-bs-target="#reportModal">鏌ョ湅</button>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>鐜嬩簲</td>
+                                                <td>鍓嶇��缁�</td>
+                                                <td><span class="status-badge status-pending">鏈�鎻愪氦</span></td>
+                                                <td>-</td>
+                                                <td>-</td>
+                                                <td><button class="btn btn-sm btn-outline-secondary"
+                                                        disabled>鏌ョ湅</button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>璧靛叚</td>
+                                                <td>鍓嶇��缁�</td>
+                                                <td><span class="status-badge status-submitted">宸叉彁浜�</span></td>
+                                                <td>01-15 18:00</td>
+                                                <td><span class="rating-stars"><i class="bi bi-star-fill"></i><i
+                                                            class="bi bi-star-fill"></i><i
+                                                            class="bi bi-star-fill"></i><i
+                                                            class="bi bi-star-fill"></i><i
+                                                            class="bi bi-star"></i></span></td>
+                                                <td><button class="btn btn-sm btn-outline-primary"
+                                                        data-bs-toggle="modal" data-bs-target="#reportModal">鏌ョ湅</button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Analytics -->
+                <div id="analyticsContent" class="module-content">
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">閮ㄩ棬鎻愪氦鐜�</div>
+                                <div class="card-body"><canvas id="pieChart"></canvas></div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">鍛樺伐璇勫垎瓒嬪娍</div>
+                                <div class="card-body"><canvas id="lineChart"></canvas></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- System Management -->
+                <div id="systemContent" class="module-content">
+                    <!-- Tabs -->
+                    <ul class="nav nav-tabs mb-3" id="systemTabs" role="tablist">
+                        <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#userTab"><i
+                                    class="bi bi-people me-1"></i>鐢ㄦ埛绠＄悊</a></li>
+                        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#roleTab"><i
+                                    class="bi bi-shield-check me-1"></i>瑙掕壊绠＄悊</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <!-- User Management Tab -->
+                        <div class="tab-pane fade show active" id="userTab">
+                            <div class="card">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <span>鐢ㄦ埛鍒楄〃</span>
+                                    <button class="btn btn-primary btn-sm" data-bs-toggle="modal"
+                                        data-bs-target="#userModal" onclick="openUserModal('add')"><i
+                                            class="bi bi-plus me-1"></i>鏂板�炵敤鎴�</button>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row mb-3">
+                                        <div class="col-md-3"><input class="form-control form-control-sm"
+                                                placeholder="鎼滅储鐢ㄦ埛鍚�..."></div>
+                                        <div class="col-md-2"><select class="form-select form-select-sm">
+                                                <option>鍏ㄩ儴閮ㄩ棬</option>
+                                                <option>鐮斿彂閮�</option>
+                                                <option>浜у搧閮�</option>
+                                            </select></div>
+                                        <div class="col-md-2"><select class="form-select form-select-sm">
+                                                <option>鍏ㄩ儴瑙掕壊</option>
+                                                <option>绠＄悊鍛�</option>
+                                                <option>缁勯暱</option>
+                                                <option>鍛樺伐</option>
+                                            </select></div>
+                                    </div>
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>濮撳悕</th>
+                                                <th>閭�绠�</th>
+                                                <th>閮ㄩ棬</th>
+                                                <th>瑙掕壊</th>
+                                                <th>鐘舵€�</th>
+                                                <th>鎿嶄綔</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>1</td>
+                                                <td>绠＄悊鍛�</td>
+                                                <td>admin@company.com</td>
+                                                <td>-</td>
+                                                <td><span class="badge bg-primary">绠＄悊鍛�</span></td>
+                                                <td><span class="badge bg-success">鍚�鐢�</span></td>
+                                                <td><button class="btn btn-sm btn-outline-primary me-1"
+                                                        data-bs-toggle="modal" data-bs-target="#userModal"
+                                                        onclick="openUserModal('edit', 1)">缂栬緫</button><button
+                                                        class="btn btn-sm btn-outline-danger" data-bs-toggle="modal"
+                                                        data-bs-target="#deleteModal"
+                                                        onclick="openDeleteModal('user', '绠＄悊鍛�')">鍒犻櫎</button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>2</td>
+                                                <td>寮犱笁</td>
+                                                <td>zhangsan@company.com</td>
+                                                <td>鐮斿彂閮�/鍚庣��缁�</td>
+                                                <td><span class="badge bg-secondary">鍛樺伐</span></td>
+                                                <td><span class="badge bg-success">鍚�鐢�</span></td>
+                                                <td><button class="btn btn-sm btn-outline-primary me-1"
+                                                        data-bs-toggle="modal" data-bs-target="#userModal"
+                                                        onclick="openUserModal('edit', 2)">缂栬緫</button><button
+                                                        class="btn btn-sm btn-outline-danger" data-bs-toggle="modal"
+                                                        data-bs-target="#deleteModal"
+                                                        onclick="openDeleteModal('user', '寮犱笁')">鍒犻櫎</button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>3</td>
+                                                <td>鏉庡洓</td>
+                                                <td>lisi@company.com</td>
+                                                <td>鐮斿彂閮�/鍚庣��缁�</td>
+                                                <td><span class="badge bg-info">缁勯暱</span></td>
+                                                <td><span class="badge bg-success">鍚�鐢�</span></td>
+                                                <td><button class="btn btn-sm btn-outline-primary me-1"
+                                                        data-bs-toggle="modal" data-bs-target="#userModal"
+                                                        onclick="openUserModal('edit', 3)">缂栬緫</button><button
+                                                        class="btn btn-sm btn-outline-danger" data-bs-toggle="modal"
+                                                        data-bs-target="#deleteModal"
+                                                        onclick="openDeleteModal('user', '鏉庡洓')">鍒犻櫎</button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>4</td>
+                                                <td>鐜嬩簲</td>
+                                                <td>wangwu@company.com</td>
+                                                <td>鐮斿彂閮�/鍓嶇��缁�</td>
+                                                <td><span class="badge bg-secondary">鍛樺伐</span></td>
+                                                <td><span class="badge bg-warning text-dark">绂佺敤</span></td>
+                                                <td><button class="btn btn-sm btn-outline-primary me-1"
+                                                        data-bs-toggle="modal" data-bs-target="#userModal"
+                                                        onclick="openUserModal('edit', 4)">缂栬緫</button><button
+                                                        class="btn btn-sm btn-outline-danger" data-bs-toggle="modal"
+                                                        data-bs-target="#deleteModal"
+                                                        onclick="openDeleteModal('user', '鐜嬩簲')">鍒犻櫎</button></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    <nav>
+                                        <ul class="pagination pagination-sm justify-content-end mb-0">
+                                            <li class="page-item disabled"><a class="page-link">涓婁竴椤�</a></li>
+                                            <li class="page-item active"><a class="page-link">1</a></li>
+                                            <li class="page-item"><a class="page-link">2</a></li>
+                                            <li class="page-item"><a class="page-link">涓嬩竴椤�</a></li>
+                                        </ul>
+                                    </nav>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Role Management Tab -->
+                        <div class="tab-pane fade" id="roleTab">
+                            <div class="card">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <span>瑙掕壊鍒楄〃</span>
+                                    <button class="btn btn-primary btn-sm" data-bs-toggle="modal"
+                                        data-bs-target="#roleModal" onclick="openRoleModal('add')"><i
+                                            class="bi bi-plus me-1"></i>鏂板�炶�掕壊</button>
+                                </div>
+                                <div class="card-body">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>瑙掕壊鍚嶇О</th>
+                                                <th>瑙掕壊缂栫爜</th>
+                                                <th>鎻忚堪</th>
+                                                <th>鐢ㄦ埛鏁�</th>
+                                                <th>鐘舵€�</th>
+                                                <th>鎿嶄綔</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>1</td>
+                                                <td><span class="badge bg-primary">绠＄悊鍛�</span></td>
+                                                <td>ADMIN</td>
+                                                <td>绯荤粺瓒呯骇绠＄悊鍛橈紝鎷ユ湁鎵€鏈夋潈闄�</td>
+                                                <td>1</td>
+                                                <td><span class="badge bg-success">鍚�鐢�</span></td>
+                                                <td><button class="btn btn-sm btn-outline-primary me-1"
+                                                        data-bs-toggle="modal" data-bs-target="#roleModal"
+                                                        onclick="openRoleModal('edit', 1)">缂栬緫</button><button
+                                                        class="btn btn-sm btn-outline-info me-1" data-bs-toggle="modal"
+                                                        data-bs-target="#permissionModal">鏉冮檺</button><button
+                                                        class="btn btn-sm btn-outline-danger" disabled>鍒犻櫎</button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>2</td>
+                                                <td><span class="badge bg-info">缁勯暱</span></td>
+                                                <td>LEADER</td>
+                                                <td>鍥㈤槦缁勯暱锛屽彲鏌ョ湅涓嬪睘鍛ㄦ姤骞惰瘎鍒�</td>
+                                                <td>2</td>
+                                                <td><span class="badge bg-success">鍚�鐢�</span></td>
+                                                <td><button class="btn btn-sm btn-outline-primary me-1"
+                                                        data-bs-toggle="modal" data-bs-target="#roleModal"
+                                                        onclick="openRoleModal('edit', 2)">缂栬緫</button><button
+                                                        class="btn btn-sm btn-outline-info me-1" data-bs-toggle="modal"
+                                                        data-bs-target="#permissionModal">鏉冮檺</button><button
+                                                        class="btn btn-sm btn-outline-danger" data-bs-toggle="modal"
+                                                        data-bs-target="#deleteModal"
+                                                        onclick="openDeleteModal('role', '缁勯暱')">鍒犻櫎</button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>3</td>
+                                                <td><span class="badge bg-secondary">鍛樺伐</span></td>
+                                                <td>STAFF</td>
+                                                <td>鏅�閫氬憳宸ワ紝鍙�濉�鍐欏拰鎻愪氦鍛ㄦ姤</td>
+                                                <td>15</td>
+                                                <td><span class="badge bg-success">鍚�鐢�</span></td>
+                                                <td><button class="btn btn-sm btn-outline-primary me-1"
+                                                        data-bs-toggle="modal" data-bs-target="#roleModal"
+                                                        onclick="openRoleModal('edit', 3)">缂栬緫</button><button
+                                                        class="btn btn-sm btn-outline-info me-1" data-bs-toggle="modal"
+                                                        data-bs-target="#permissionModal">鏉冮檺</button><button
+                                                        class="btn btn-sm btn-outline-danger" data-bs-toggle="modal"
+                                                        data-bs-target="#deleteModal"
+                                                        onclick="openDeleteModal('role', '鍛樺伐')">鍒犻櫎</button></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+    <!-- Modal -->
+    <div class="modal fade" id="reportModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">鍛ㄦ姤璇︽儏 - 寮犱笁 (绗�3鍛�)</h5><button type="button" class="btn-close"
+                        data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <h6 class="text-primary mb-2">鏈�鍛ㄥ伐浣�</h6>
+                    <p class="bg-light p-3 rounded">1. 瀹屾垚鐢ㄦ埛妯″潡API寮€鍙�<br>2. 淇�澶嶇櫥褰曢〉闈�BUG<br>3. 鍙備笌浠ｇ爜璇勫�′細璁�</p>
+                    <h6 class="text-primary mb-2">涓嬪懆璁″垝</h6>
+                    <p class="bg-light p-3 rounded">1. 瀹屾垚璁㈠崟妯″潡寮€鍙�<br>2. 缂栧啓鍗曞厓娴嬭瘯<br>3. 浼樺寲鏁版嵁搴撴煡璇㈡€ц兘</p>
+                    <h6 class="text-primary mb-2">闇€鍗忚皟浜嬮」</h6>
+                    <p class="bg-light p-3 rounded">闇€瑕佷骇鍝佺粡鐞嗙‘璁よ�㈠崟娴佺▼缁嗚妭</p>
+                    <hr>
+                    <div class="row">
+                        <div class="col-md-6"><label class="form-label fw-bold">璇勫垎</label>
+                            <div class="btn-group" role="group"><button class="btn btn-outline-warning">1<i
+                                        class="bi bi-star-fill"></i></button><button class="btn btn-outline-warning">2<i
+                                        class="bi bi-star-fill"></i></button><button class="btn btn-outline-warning">3<i
+                                        class="bi bi-star-fill"></i></button><button
+                                    class="btn btn-outline-warning active">4<i
+                                        class="bi bi-star-fill"></i></button><button class="btn btn-outline-warning">5<i
+                                        class="bi bi-star-fill"></i></button></div>
+                        </div>
+                        <div class="col-md-6"><label class="form-label fw-bold">璇勮��</label><textarea class="form-control"
+                                rows="2" placeholder="璇疯緭鍏ヨ瘎璇�...">宸ヤ綔瀹屾垚搴﹂珮锛岀户缁�淇濇寔锛�</textarea></div>
+                    </div>
+                </div>
+                <div class="modal-footer"><button type="button" class="btn btn-secondary"
+                        data-bs-dismiss="modal">鍏抽棴</button><button type="button" class="btn btn-primary">淇濆瓨璇勪环</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- User Modal -->
+    <div class="modal fade" id="userModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="userModalTitle">鏂板�炵敤鎴�</h5><button type="button" class="btn-close"
+                        data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3"><label class="form-label">濮撳悕 <span class="text-danger">*</span></label><input
+                            type="text" class="form-control" id="userName" placeholder="璇疯緭鍏ュ�撳悕"></div>
+                    <div class="mb-3"><label class="form-label">閭�绠� <span class="text-danger">*</span></label><input
+                            type="email" class="form-control" id="userEmail" placeholder="璇疯緭鍏ラ偖绠�"></div>
+                    <div class="mb-3"><label class="form-label">瀵嗙爜 <span class="text-danger">*</span></label><input
+                            type="password" class="form-control" id="userPassword" placeholder="璇疯緭鍏ュ瘑鐮�"></div>
+                    <div class="mb-3"><label class="form-label">閮ㄩ棬</label><select class="form-select" id="userDept">
+                            <option value="">璇烽€夋嫨閮ㄩ棬</option>
+                            <option>鐮斿彂閮�/鍚庣��缁�</option>
+                            <option>鐮斿彂閮�/鍓嶇��缁�</option>
+                            <option>浜у搧閮�</option>
+                            <option>甯傚満閮�</option>
+                        </select></div>
+                    <div class="mb-3"><label class="form-label">瑙掕壊 <span class="text-danger">*</span></label><select
+                            class="form-select" id="userRole">
+                            <option value="">璇烽€夋嫨瑙掕壊</option>
+                            <option value="admin">绠＄悊鍛�</option>
+                            <option value="leader">缁勯暱</option>
+                            <option value="staff">鍛樺伐</option>
+                        </select></div>
+                    <div class="mb-3"><label class="form-label">鐘舵€�</label>
+                        <div class="form-check form-switch"><input class="form-check-input" type="checkbox"
+                                id="userStatus" checked><label class="form-check-label" for="userStatus">鍚�鐢�</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer"><button type="button" class="btn btn-secondary"
+                        data-bs-dismiss="modal">鍙栨秷</button><button type="button" class="btn btn-primary"
+                        onclick="saveUser()">淇濆瓨</button></div>
+            </div>
+        </div>
+    </div>
+    <!-- Role Modal -->
+    <div class="modal fade" id="roleModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="roleModalTitle">鏂板�炶�掕壊</h5><button type="button" class="btn-close"
+                        data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3"><label class="form-label">瑙掕壊鍚嶇О <span class="text-danger">*</span></label><input
+                            type="text" class="form-control" id="roleName" placeholder="璇疯緭鍏ヨ�掕壊鍚嶇О"></div>
+                    <div class="mb-3"><label class="form-label">瑙掕壊缂栫爜 <span class="text-danger">*</span></label><input
+                            type="text" class="form-control" id="roleCode" placeholder="璇疯緭鍏ヨ�掕壊缂栫爜锛堝��: ADMIN锛�"></div>
+                    <div class="mb-3"><label class="form-label">瑙掕壊鎻忚堪</label><textarea class="form-control" id="roleDesc"
+                            rows="3" placeholder="璇疯緭鍏ヨ�掕壊鎻忚堪"></textarea></div>
+                    <div class="mb-3"><label class="form-label">鐘舵€�</label>
+                        <div class="form-check form-switch"><input class="form-check-input" type="checkbox"
+                                id="roleStatus" checked><label class="form-check-label" for="roleStatus">鍚�鐢�</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer"><button type="button" class="btn btn-secondary"
+                        data-bs-dismiss="modal">鍙栨秷</button><button type="button" class="btn btn-primary"
+                        onclick="saveRole()">淇濆瓨</button></div>
+            </div>
+        </div>
+    </div>
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title"><i class="bi bi-exclamation-triangle me-2"></i>纭�璁ゅ垹闄�</h5><button
+                        type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center py-4"><i class="bi bi-trash text-danger" style="font-size:3rem;"></i>
+                    <p class="mt-3 mb-0">纭�瀹氳�佸垹闄� <strong id="deleteItemName"></strong> 鍚楋紵</p>
+                    <p class="text-muted small">姝ゆ搷浣滀笉鍙�鎭㈠��</p>
+                </div>
+                <div class="modal-footer justify-content-center"><button type="button" class="btn btn-secondary"
+                        data-bs-dismiss="modal">鍙栨秷</button><button type="button" class="btn btn-danger"
+                        onclick="confirmDelete()">纭�璁ゅ垹闄�</button></div>
+            </div>
+        </div>
+    </div>
+    <!-- Permission Modal -->
+    <div class="modal fade" id="permissionModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-shield-check me-2"></i>鏉冮檺閰嶇疆</h5><button type="button"
+                        class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card mb-3">
+                                <div class="card-header bg-light py-2">
+                                    <div class="form-check"><input class="form-check-input" type="checkbox" id="perm1"
+                                            checked><label class="form-check-label fw-bold" for="perm1">鍛ㄦ姤绠＄悊</label>
+                                    </div>
+                                </div>
+                                <div class="card-body py-2">
+                                    <div class="form-check ms-4"><input class="form-check-input" type="checkbox"
+                                            checked><label class="form-check-label">鏌ョ湅鍛ㄦ姤</label></div>
+                                    <div class="form-check ms-4"><input class="form-check-input" type="checkbox"
+                                            checked><label class="form-check-label">濉�鍐欏懆鎶�</label></div>
+                                    <div class="form-check ms-4"><input class="form-check-input" type="checkbox"
+                                            checked><label class="form-check-label">鎻愪氦鍛ㄦ姤</label></div>
+                                    <div class="form-check ms-4"><input class="form-check-input" type="checkbox"><label
+                                            class="form-check-label">鍒犻櫎鍛ㄦ姤</label></div>
+                                </div>
+                            </div>
+                            <div class="card">
+                                <div class="card-header bg-light py-2">
+                                    <div class="form-check"><input class="form-check-input" type="checkbox" id="perm2"
+                                            checked><label class="form-check-label fw-bold" for="perm2">鍥㈤槦绠＄悊</label>
+                                    </div>
+                                </div>
+                                <div class="card-body py-2">
+                                    <div class="form-check ms-4"><input class="form-check-input" type="checkbox"
+                                            checked><label class="form-check-label">鏌ョ湅鍥㈤槦鍛ㄦ姤</label></div>
+                                    <div class="form-check ms-4"><input class="form-check-input" type="checkbox"
+                                            checked><label class="form-check-label">璇勫垎璇勪环</label></div>
+                                    <div class="form-check ms-4"><input class="form-check-input" type="checkbox"><label
+                                            class="form-check-label">鍌�浜ゆ彁閱�</label></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card mb-3">
+                                <div class="card-header bg-light py-2">
+                                    <div class="form-check"><input class="form-check-input" type="checkbox"
+                                            id="perm3"><label class="form-check-label fw-bold" for="perm3">缁熻�″垎鏋�</label>
+                                    </div>
+                                </div>
+                                <div class="card-body py-2">
+                                    <div class="form-check ms-4"><input class="form-check-input" type="checkbox"><label
+                                            class="form-check-label">鏌ョ湅缁熻�℃姤琛�</label></div>
+                                    <div class="form-check ms-4"><input class="form-check-input" type="checkbox"><label
+                                            class="form-check-label">瀵煎嚭鎶ヨ〃</label></div>
+                                </div>
+                            </div>
+                            <div class="card">
+                                <div class="card-header bg-light py-2">
+                                    <div class="form-check"><input class="form-check-input" type="checkbox"
+                                            id="perm4"><label class="form-check-label fw-bold" for="perm4">绯荤粺绠＄悊</label>
+                                    </div>
+                                </div>
+                                <div class="card-body py-2">
+                                    <div class="form-check ms-4"><input class="form-check-input" type="checkbox"><label
+                                            class="form-check-label">鐢ㄦ埛绠＄悊</label></div>
+                                    <div class="form-check ms-4"><input class="form-check-input" type="checkbox"><label
+                                            class="form-check-label">瑙掕壊绠＄悊</label></div>
+                                    <div class="form-check ms-4"><input class="form-check-input" type="checkbox"><label
+                                            class="form-check-label">閮ㄩ棬绠＄悊</label></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer"><button type="button" class="btn btn-secondary"
+                        data-bs-dismiss="modal">鍙栨秷</button><button type="button" class="btn btn-primary"
+                        onclick="savePermission()">淇濆瓨鏉冮檺</button></div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const pageTitles = { dashboard: '宸ヤ綔鍙�', write: '鍐欏懆鎶�', team: '鍥㈤槦鍛ㄦ姤', analytics: '缁熻�″垎鏋�', system: '绯荤粺绠＄悊' };
+        const mockUsers = { 1: { name: '绠＄悊鍛�', email: 'admin@company.com', dept: '', role: 'admin' }, 2: { name: '寮犱笁', email: 'zhangsan@company.com', dept: '鐮斿彂閮�/鍚庣��缁�', role: 'staff' }, 3: { name: '鏉庡洓', email: 'lisi@company.com', dept: '鐮斿彂閮�/鍚庣��缁�', role: 'leader' }, 4: { name: '鐜嬩簲', email: 'wangwu@company.com', dept: '鐮斿彂閮�/鍓嶇��缁�', role: 'staff' } };
+        const mockRoles = { 1: { name: '绠＄悊鍛�', code: 'ADMIN', desc: '绯荤粺瓒呯骇绠＄悊鍛橈紝鎷ユ湁鎵€鏈夋潈闄�' }, 2: { name: '缁勯暱', code: 'LEADER', desc: '鍥㈤槦缁勯暱锛屽彲鏌ョ湅涓嬪睘鍛ㄦ姤骞惰瘎鍒�' }, 3: { name: '鍛樺伐', code: 'STAFF', desc: '鏅�閫氬憳宸ワ紝鍙�濉�鍐欏拰鎻愪氦鍛ㄦ姤' } };
+        let currentDeleteType = '', currentDeleteName = '';
+
+        document.getElementById('loginForm').addEventListener('submit', e => { e.preventDefault(); document.getElementById('loginPage').classList.remove('active'); document.getElementById('mainLayout').classList.add('active'); initCharts(); });
+        document.getElementById('logoutBtn').addEventListener('click', e => { e.preventDefault(); document.getElementById('mainLayout').classList.remove('active'); document.getElementById('loginPage').classList.add('active'); });
+        document.querySelectorAll('[data-page]').forEach(link => { link.addEventListener('click', e => { e.preventDefault(); const page = link.dataset.page; document.querySelectorAll('.sidebar-nav .nav-link').forEach(l => l.classList.remove('active')); link.classList.add('active'); document.querySelectorAll('.module-content').forEach(c => c.classList.remove('active')); document.getElementById(page + 'Content').classList.add('active'); document.getElementById('pageTitle').textContent = pageTitles[page]; if (page === 'analytics') initCharts(); }); });
+        document.getElementById('importBtn').addEventListener('click', () => { document.getElementById('thisWeekWork').value = '1. 瀹屾垚璁㈠崟妯″潡寮€鍙慭n2. 缂栧啓鍗曞厓娴嬭瘯\n3. 浼樺寲鏁版嵁搴撴煡璇㈡€ц兘'; alert('宸插�煎叆涓婂懆璁″垝锛�'); });
+
+        function openUserModal(mode, id) { document.getElementById('userModalTitle').textContent = mode === 'add' ? '鏂板�炵敤鎴�' : '缂栬緫鐢ㄦ埛'; if (mode === 'edit' && mockUsers[id]) { const u = mockUsers[id]; document.getElementById('userName').value = u.name; document.getElementById('userEmail').value = u.email; document.getElementById('userDept').value = u.dept; document.getElementById('userRole').value = u.role; } else { document.getElementById('userName').value = ''; document.getElementById('userEmail').value = ''; document.getElementById('userDept').value = ''; document.getElementById('userRole').value = ''; } }
+        function saveUser() { alert('鐢ㄦ埛淇℃伅宸蹭繚瀛橈紒'); bootstrap.Modal.getInstance(document.getElementById('userModal')).hide(); }
+        function openRoleModal(mode, id) { document.getElementById('roleModalTitle').textContent = mode === 'add' ? '鏂板�炶�掕壊' : '缂栬緫瑙掕壊'; if (mode === 'edit' && mockRoles[id]) { const r = mockRoles[id]; document.getElementById('roleName').value = r.name; document.getElementById('roleCode').value = r.code; document.getElementById('roleDesc').value = r.desc; } else { document.getElementById('roleName').value = ''; document.getElementById('roleCode').value = ''; document.getElementById('roleDesc').value = ''; } }
+        function saveRole() { alert('瑙掕壊淇℃伅宸蹭繚瀛橈紒'); bootstrap.Modal.getInstance(document.getElementById('roleModal')).hide(); }
+        function openDeleteModal(type, name) { currentDeleteType = type; currentDeleteName = name; document.getElementById('deleteItemName').textContent = name; }
+        function confirmDelete() { alert(currentDeleteType === 'user' ? '鐢ㄦ埛 "' + currentDeleteName + '" 宸插垹闄わ紒' : '瑙掕壊 "' + currentDeleteName + '" 宸插垹闄わ紒'); bootstrap.Modal.getInstance(document.getElementById('deleteModal')).hide(); }
+        function savePermission() { alert('鏉冮檺閰嶇疆宸蹭繚瀛橈紒'); bootstrap.Modal.getInstance(document.getElementById('permissionModal')).hide(); }
+
+        function initCharts() { const pie = document.getElementById('pieChart'); const line = document.getElementById('lineChart'); if (pie && !pie.chart) { pie.chart = new Chart(pie, { type: 'doughnut', data: { labels: ['宸叉彁浜�', '鏈�鎻愪氦'], datasets: [{ data: [85, 15], backgroundColor: ['#0d6efd', '#dc3545'] }] }, options: { plugins: { legend: { position: 'bottom' } } } }); } if (line && !line.chart) { line.chart = new Chart(line, { type: 'line', data: { labels: ['绗�1鍛�', '绗�2鍛�', '绗�3鍛�', '绗�4鍛�'], datasets: [{ label: '寮犱笁', data: [4.2, 4.5, 4.8, 4.6], borderColor: '#0d6efd', tension: 0.3 }, { label: '鏉庡洓', data: [4.0, 4.3, 4.7, 5.0], borderColor: '#198754', tension: 0.3 }] }, options: { plugins: { legend: { position: 'bottom' } }, scales: { y: { min: 0, max: 5 } } } }); } }
+    </script>
+</body>
+
+</html>
