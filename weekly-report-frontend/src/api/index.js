@@ -2,8 +2,11 @@ import axios from 'axios'
 import { ElMessage } from 'element-plus'
 import router from '@/router'
 
+// 线上部署时建议通过 Vercel 环境变量 VITE_API_BASE 配置后端地址
+// - 本地开发默认仍走 Vite 代理：/api -> http://localhost:8080/api
+// - 线上示例：VITE_API_BASE=https://your-backend-domain/api
 const request = axios.create({
-    baseURL: '/api',
+    baseURL: import.meta.env?.VITE_API_BASE || '/api',
     timeout: 10000
 })
 

@@ -20,9 +20,9 @@ spring:
   # 数据库配置
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/weekly_report?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
-    username: root
-    password: ywj26626
+    url: ${DB_URL:jdbc:mysql://localhost:3306/weekly_report?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:}
   
   # Redis 配置（当 app.cache.redis: false 时可不配或注释，避免连接失败）
   redis:
@@ -67,7 +67,7 @@ knife4j:
 ai:
   enabled: true
   api-url: https://api.deepseek.com/v1/chat/completions
-  api-key: sk-c155135802e0475894d80b305baeac26
+  api-key: ${AI_API_KEY:}
   model: deepseek-chat
   max-tokens: 2048
   timeout-ms: 30000
